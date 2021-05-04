@@ -5,7 +5,34 @@ class Connection(object):
         self.connection = sqlite3.connect(database_name)
         self.cursor = self.connection.cursor()
     
+
+    def find(self, query, params=(), get_result=False):
+        resultset = None
+        if params:
+            resultset = self.cursor.execute(query, params)
+        else:
+            resultset = self.cursor.execute(query)
+        
+        if get_result:
+            return resultset.fetchone()
+        else:
+            resultset = None
+            return resultset
     
+
+    def find_all(self, query, params=()):
+        resultset = None
+        if params:
+            resultset = self.cursor.execute(query, params)
+        else:
+            resultset = self.cursor.execute(query)
+        
+        if resultset:
+            return resultset.fetchall()
+        else:
+            return None
+
+
     def create(self, query,params=()):
         if params:
             self.cursor.execute(query, params)
@@ -39,9 +66,19 @@ class Connection(object):
     def delete(self, query, params=()):
         if params: 
             self.cursor.execute(query, params)
-        else self.cursor.execute(query)
+        else:
+            self.cursor.execute(query)
         return True
 
-    def connection_close(self):
+
+    def close(self):
         self.connection.close()
         self.cursor = None
+
+    
+    def commit(self):
+        self.connection.commit()
+
+
+    def rollback(self):
+        self.connection.rollback()
